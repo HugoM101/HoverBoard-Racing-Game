@@ -135,6 +135,7 @@ GameObject:
   - component: {fileID: 190528004}
   - component: {fileID: 190528003}
   - component: {fileID: 190528007}
+  - component: {fileID: 190528008}
   m_Layer: 0
   m_Name: Hoverboard
   m_TagString: Untagged
@@ -221,8 +222,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 190528002}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.874, z: 0.176}
+  m_LocalRotation: {x: -0, y: 0.9998652, z: -0, w: -0.01642184}
+  m_LocalPosition: {x: -0.027691875, y: 0.874, z: 0.63}
   m_LocalScale: {x: 0.21425, y: 0.038631793, z: 0.44333}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -234,8 +235,9 @@ Transform:
   - {fileID: 1075949828}
   - {fileID: 1189224791}
   - {fileID: 576800282}
+  - {fileID: 1029082578}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 181.882, z: 0}
 --- !u!54 &190528007
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -245,8 +247,8 @@ Rigidbody:
   m_GameObject: {fileID: 190528002}
   serializedVersion: 4
   m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0
+  m_Drag: 5
+  m_AngularDrag: 5
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -263,6 +265,23 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &190528008
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 190528002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 712939059bf565542bf3e7bddb725add, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hoverPoints: []
+  hoverHeight: 0
+  hoverForce: 0
+  baseSpeed: 20
+  turningSpeed: 20
 --- !u!1 &318244911
 GameObject:
   m_ObjectHideFlags: 0
@@ -745,13 +764,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: 0, y: 0, z: -0, w: -1}
+  m_LocalPosition: {x: -0, y: 3.82, z: -1.88}
+  m_LocalScale: {x: 4.667444, y: 25.885414, z: 2.255656}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_Father: {fileID: 1029082578}
+  m_LocalEulerAnglesHint: {x: 0, y: 360, z: 0}
 --- !u!1 &981583335
 GameObject:
   m_ObjectHideFlags: 0
@@ -783,6 +802,52 @@ Transform:
   m_Children: []
   m_Father: {fileID: 190528006}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1029082577
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1029082578}
+  - component: {fileID: 1029082579}
+  m_Layer: 0
+  m_Name: Player
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1029082578
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1029082577}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 2.31, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 963194228}
+  m_Father: {fileID: 190528006}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1029082579
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1029082577}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cea1871f85211094d9806e5f6a0f2ef8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hoverboard: {fileID: 190528008}
 --- !u!1 &1075949827
 GameObject:
   m_ObjectHideFlags: 0
@@ -1121,7 +1186,6 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 963194228}
   - {fileID: 705507995}
   - {fileID: 1982333302}
   - {fileID: 1749639607}
