@@ -12,6 +12,12 @@ public class Hoverboard : MonoBehaviour
     public float baseSpeed;
     public float turningSpeed;
 
+    public float boostSpeed;
+    public float boostDuration = 4f;
+    public float boostCooldown = 15f;
+    private bool isBoosting = false;
+    private bool canBoost = true;
+
     private Rigidbody rb;
 
 
@@ -30,7 +36,21 @@ public class Hoverboard : MonoBehaviour
     //to move and turn the hoverboard
     public void Move(float moveInput, float turnInput)
     {
-        Vector3 moveDirection = transform.forward * moveInput * baseSpeed;
+        float currentSpeed;
+
+        if (isBoosting)
+        {
+            currentSpeed = boostSpeed;
+        }
+
+        else
+        {
+            currentSpeed = baseSpeed;
+        }
+
+        Debug.Log(currentSpeed);
+        
+        Vector3 moveDirection = transform.forward * moveInput * currentSpeed;
         rb.AddForce(moveDirection, ForceMode.Acceleration);
 
         float turnAmount = turnInput * turningSpeed;
@@ -67,5 +87,28 @@ public class Hoverboard : MonoBehaviour
                 rb.AddForce(Vector3.down * hoverForce, ForceMode.Acceleration);
             }
         }
+    }
+
+    public void Boost()
+    {
+        if (canBoost)
+        {
+            StartCoroutine(BoostRoutine());
+        }
+    }
+
+    private IEnumerator BoostRoutine()
+    {
+        isBoosting = true;
+        canBoost = false;
+        //start boost
+
+        yield return new WaitForSeconds(boostDuration);
+        isBoosting = false;
+        //boost end
+
+        yield return new WaitForSeconds(boostCooldown);
+        canBoost = true;
+        //boost available again
     }
 }
