@@ -50,7 +50,7 @@ public class Hoverboard : MonoBehaviour
 
         Debug.Log(currentSpeed);
         
-        Vector3 moveDirection = transform.forward * moveInput * currentSpeed;
+        Vector3 moveDirection = transform.right * moveInput * currentSpeed;
         rb.AddForce(moveDirection, ForceMode.Acceleration);
 
         float turnAmount = turnInput * turningSpeed;
