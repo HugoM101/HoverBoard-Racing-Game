@@ -8,6 +8,10 @@ public class Hoverboard : MonoBehaviour
     public float hoverHeight;
     public float hoverForce;
     public float maxHoverDistance; //maximum distance able to detect surfaces
+    private float startForce = 10.0f;
+    private bool hovering = true;
+
+    private float savedHoverForce;
 
     public float baseSpeed;
     public float turningSpeed;
@@ -25,12 +29,17 @@ public class Hoverboard : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        savedHoverForce = hoverForce;
+        StartCoroutine(IncreaseHoverForceOverTime());
     }
 
     //fixed update used as we are applying forces and torques
     void FixedUpdate()
     {
-        Hover();
+        if(hovering == true)
+        {
+            Hover();
+        }
     }
 
     //to move and turn the hoverboard
@@ -84,7 +93,9 @@ public class Hoverboard : MonoBehaviour
             else
             {
                 //if there is no ground detected then apply downward force 
-                rb.AddForce(Vector3.down * hoverForce, ForceMode.Acceleration);
+                rb.AddForce(Vector3.down * 5.0f, ForceMode.Acceleration);
+                hoverForce = startForce; //set hover force to starting force(weak force so it doesnt impact the reset of position during transition)
+                
             }
         }
     }
@@ -110,5 +121,36 @@ public class Hoverboard : MonoBehaviour
         yield return new WaitForSeconds(boostCooldown);
         canBoost = true;
         //boost available again
+    }
+
+    //for the purpose of stable spawn and position resetting
+    private IEnumerator IncreaseHoverForceOverTime()
+    {
+        float elapsedTime = 0f;
+        float targetForce = savedHoverForce; //using the initial force set by the user
+        float IncreaseDuration = 1.0f; //allow time for adjustement to happen
+   
+        while (elapsedTime <  IncreaseDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            hoverForce = startForce;
+            yield return null; 
+        }
+
+        hoverForce = targetForce;
+        hovering = true;
+    }
+
+    public void ResetHoverboard(Vector3 position, Quaternion rotation)
+    {
+        transform.position = position;
+        transform.rotation = rotation;
+
+        hovering = false; //stop hovering for stable reset
+    
+        rb.velocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+
+        StartCoroutine(IncreaseHoverForceOverTime()); 
     }
 }

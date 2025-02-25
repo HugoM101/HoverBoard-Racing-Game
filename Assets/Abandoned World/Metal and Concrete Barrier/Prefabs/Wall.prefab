@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2323641702402058322}
   - component: {fileID: -4515385322562417955}
   m_Layer: 0
-  m_Name: Concrete_Barrier_2
+  m_Name: Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

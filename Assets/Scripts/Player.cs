@@ -8,6 +8,7 @@ public class Player : MonoBehaviour
     float moveInput;
     float turnInput;
     bool boostTriggered = false;
+    private int health;
     // Start is called before the first frame update
     void Start()
     {
