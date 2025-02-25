@@ -94,8 +94,6 @@ public class Hoverboard : MonoBehaviour
             {
                 //if there is no ground detected then apply downward force 
                 rb.AddForce(Vector3.down * 5.0f, ForceMode.Acceleration);
-                hoverForce = startForce; //set hover force to starting force(weak force so it doesnt impact the reset of position during transition)
-                
             }
         }
     }
@@ -127,7 +125,6 @@ public class Hoverboard : MonoBehaviour
     private IEnumerator IncreaseHoverForceOverTime()
     {
         float elapsedTime = 0f;
-        float targetForce = savedHoverForce; //using the initial force set by the user
         float IncreaseDuration = 1.0f; //allow time for adjustement to happen
    
         while (elapsedTime <  IncreaseDuration)
@@ -137,12 +134,13 @@ public class Hoverboard : MonoBehaviour
             yield return null; 
         }
 
-        hoverForce = targetForce;
+        hoverForce = savedHoverForce;
         hovering = true;
     }
 
     public void ResetHoverboard(Vector3 position, Quaternion rotation)
     {
+        
         transform.position = position;
         transform.rotation = rotation;
 
