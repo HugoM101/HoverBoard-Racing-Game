@@ -24,6 +24,13 @@ public class AI : MonoBehaviour
     public float avoidanceStrength;
     public LayerMask obstacleLayer; 
 
+    
+    public Transform player;
+    public float minSpeedModifier; 
+    public float maxSpeedModifier; 
+    public float rubberBandStrength; 
+    private float adjustedSpeed;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -42,10 +49,13 @@ public class AI : MonoBehaviour
         Quaternion initialRotation = Quaternion.LookRotation(initialTangent, initialUp);
         Quaternion offsetRotation = Quaternion.Euler(orientationOffset);
         transform.rotation = initialRotation * offsetRotation;
+
+        adjustedSpeed = baseSpeed;
     }
 
     void FixedUpdate() 
     {
+        RubberBanding();
         Move();
         Hover(); 
         ObstacleAvoidance();
@@ -54,20 +64,18 @@ public class AI : MonoBehaviour
     void Move()
     {
         //move along the spline
-        progress += baseSpeed * Time.deltaTime / splineContainer.CalculateLength();
+        progress += adjustedSpeed * Time.deltaTime / splineContainer.CalculateLength();
         progress = Mathf.Repeat(progress, 1f);
 
         //set pos
         Vector3 targetPosition = splineContainer.EvaluatePosition(progress);
-        transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * baseSpeed);
-
+        targetPosition += avoidanceOffset; //to apply offset for avoiding obstacles
+        transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * adjustedSpeed);
+   
         //*****set rot******
         //get tangent (direction of travel)
         Vector3 targetTangent = splineContainer.EvaluateTangent(progress);
         targetTangent = targetTangent.normalized;
-
-        //to apply offset for avoiding obstacles
-        targetPosition += avoidanceOffset;
 
         Vector3 up = splineContainer.EvaluateUpVector(progress);
 
@@ -81,8 +89,6 @@ public class AI : MonoBehaviour
 
         //smoothly rotate the ai
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * rotationSharpness); //more sharpness = quicker visual turning
-
-        transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * baseSpeed);
     }
 
     //same physics as player hoverboard script
@@ -163,5 +169,52 @@ public class AI : MonoBehaviour
             //reset offset back to 0 if nothing detected
             avoidanceOffset = Vector3.Lerp(avoidanceOffset, Vector3.zero, Time.deltaTime * 2f);
         }
+    }
+
+    void RubberBanding()
+    {
+        //get players approx progress along the spline
+        float playerProgress = GetClosestProgress(player.position);
+
+        //calculate the distance between ai and player
+        float progressDifference = progress - playerProgress;
+
+        float speedModifier = 1f;
+
+        if (progressDifference < 0) //ai behind the player
+        {
+            speedModifier = Mathf.Lerp(1f, maxSpeedModifier, Mathf.Abs(progressDifference) * rubberBandStrength);
+        }
+
+        else if (progressDifference > 0) //ai ahead of the player
+        {
+            speedModifier = Mathf.Lerp(1f, minSpeedModifier, progressDifference * rubberBandStrength);
+        }
+
+        adjustedSpeed = baseSpeed * speedModifier;
+    }
+
+    float GetClosestProgress(Vector3 targetPosition)
+    {
+        float closestProgress = 0f;
+        float currentClosestDistance = 999f; //starting point
+        int pointsSampledAlongSpline = 100;
+
+        //loop through each point 
+        //from 0 up to the total points
+        for (int i = 0; i <= pointsSampledAlongSpline; i++)
+        {
+            float t = i / (float)pointsSampledAlongSpline; //dividing loop num to a progress val between 0 and 1
+            Vector3 pointOnSpline = splineContainer.EvaluatePosition(t); //gives the position in gameworld of that progress (t)
+            float distance = Vector3.Distance(pointOnSpline, targetPosition);
+
+            if (distance < currentClosestDistance)
+            {
+                currentClosestDistance = distance; //updated to the new closer one
+                closestProgress = t;
+            }
+        }
+
+        return closestProgress;
     }
 }
