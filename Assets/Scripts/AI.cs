@@ -31,6 +31,8 @@ public class AI : MonoBehaviour
     public float rubberBandStrength; 
     private float adjustedSpeed;
 
+    public float lateralOffset;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -67,18 +69,19 @@ public class AI : MonoBehaviour
         progress += adjustedSpeed * Time.deltaTime / splineContainer.CalculateLength();
         progress = Mathf.Repeat(progress, 1f);
 
-        //set pos
+        //*****set pos******
         Vector3 targetPosition = splineContainer.EvaluatePosition(progress);
+        Vector3 up = splineContainer.EvaluateUpVector(progress);
+
+        //get tangent (direction of travel)
+        Vector3 targetTangent = splineContainer.EvaluateTangent(progress);
+        targetTangent = targetTangent.normalized;
+        Vector3 right = Vector3.Cross(up, targetTangent).normalized;
+        targetPosition += right * lateralOffset;//to allow for the spacing out of each ai
         targetPosition += avoidanceOffset; //to apply offset for avoiding obstacles
         transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * adjustedSpeed);
    
         //*****set rot******
-        //get tangent (direction of travel)
-        Vector3 targetTangent = splineContainer.EvaluateTangent(progress);
-        targetTangent = targetTangent.normalized;
-
-        Vector3 up = splineContainer.EvaluateUpVector(progress);
-
         /*creates a rotation so that the ai's forward direction lines up with the splines tangent 
         and the up direction aligns with splines up vector*/
         Quaternion targetRotation = Quaternion.LookRotation(targetTangent, up);
