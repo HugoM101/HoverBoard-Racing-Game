@@ -12,7 +12,7 @@ public class Player : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-       
+       PositionTracker.Instance.RegisterRacer(transform, true, 0f);
     }
 
     void Update()

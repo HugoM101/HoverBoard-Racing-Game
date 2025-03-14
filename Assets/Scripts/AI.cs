@@ -37,6 +37,8 @@ public class AI : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
 
+        PositionTracker.Instance.RegisterRacer(transform, false, startProgress); //register ai racers to positiontracker
+
         //***setting start point and rotation for testing. same as the move code. to be removed later***
         progress = startProgress;
 
@@ -177,7 +179,15 @@ public class AI : MonoBehaviour
     void RubberBanding()
     {
         //get players approx progress along the spline
-        float playerProgress = GetClosestProgress(player.position);
+        float playerProgress = 0f;
+        foreach (var racer in PositionTracker.Instance.racers)
+        {
+            if (racer.isPlayer)
+            {
+                playerProgress = racer.progress;
+                break;
+            }
+        }
 
         //calculate the distance between ai and player
         float progressDifference = progress - playerProgress;
@@ -195,29 +205,5 @@ public class AI : MonoBehaviour
         }
 
         adjustedSpeed = baseSpeed * speedModifier;
-    }
-
-    float GetClosestProgress(Vector3 targetPosition)
-    {
-        float closestProgress = 0f;
-        float currentClosestDistance = 999f; //starting point
-        int pointsSampledAlongSpline = 100;
-
-        //loop through each point 
-        //from 0 up to the total points
-        for (int i = 0; i <= pointsSampledAlongSpline; i++)
-        {
-            float t = i / (float)pointsSampledAlongSpline; //dividing loop num to a progress val between 0 and 1
-            Vector3 pointOnSpline = splineContainer.EvaluatePosition(t); //gives the position in gameworld of that progress (t)
-            float distance = Vector3.Distance(pointOnSpline, targetPosition);
-
-            if (distance < currentClosestDistance)
-            {
-                currentClosestDistance = distance; //updated to the new closer one
-                closestProgress = t;
-            }
-        }
-
-        return closestProgress;
     }
 }
