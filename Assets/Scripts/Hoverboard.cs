@@ -22,6 +22,8 @@ public class Hoverboard : MonoBehaviour
     private bool isBoosting = false;
     private bool canBoost = true;
 
+    public UIManager uiManager;
+
     private Rigidbody rb;
 
 
@@ -31,6 +33,8 @@ public class Hoverboard : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         savedHoverForce = hoverForce;
         StartCoroutine(IncreaseHoverForceOverTime());
+
+        uiManager.UpdateBoostStatus(true, false);
     }
 
     //fixed update used as we are applying forces and torques
@@ -108,14 +112,17 @@ public class Hoverboard : MonoBehaviour
     {
         isBoosting = true;
         canBoost = false;
+        uiManager.UpdateBoostStatus(false, true);
         //start boost
 
         yield return new WaitForSeconds(boostDuration);
         isBoosting = false;
+        uiManager.UpdateBoostStatus(false, false, boostCooldown);
         //boost end
 
         yield return new WaitForSeconds(boostCooldown);
         canBoost = true;
+        uiManager.UpdateBoostStatus(true, false);
         //boost available again
     }
 

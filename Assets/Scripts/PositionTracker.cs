@@ -19,12 +19,14 @@ public class PositionTracker : MonoBehaviour
     public List<RacerData> racers = new();
     public SplineContainer spline;
     public GameObject checkpoint; 
-    public Text positionText;
+    private UIManager uiManager;
 
     void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
+
+        uiManager = FindObjectOfType<UIManager>();
     }
 
     void FixedUpdate()
@@ -91,18 +93,17 @@ public class PositionTracker : MonoBehaviour
 
     void UpdatePosition()
     {
-        if (positionText != null)
+      
+        foreach (RacerData racer in racers)
         {
-            foreach (RacerData racer in racers)
+            if (racer.isPlayer)
             {
-                if (racer.isPlayer)
-                {
-                    int position = CalculatePosition(racer);
-                    positionText.text = $"Position: {position}\nLap: {racer.lapCount}";
-                    break;
-                }
+                int position = CalculatePosition(racer);
+                uiManager.UpdatePositionDisplay(position, racer.lapCount);
+                break;
             }
         }
+        
     }
 
     float GetClosestProgress(Vector3 racerPosition)
