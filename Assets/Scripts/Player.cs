@@ -8,11 +8,19 @@ public class Player : MonoBehaviour
     float moveInput;
     float turnInput;
     bool boostTriggered = false;
-    private int health;
-    // Start is called before the first frame update
+    private int health = 100;
+    private int maxHealth = 100;
+
+    public int Health
+    {
+        get { return health; }
+    }
+   
     void Start()
     {
        PositionTracker.Instance.RegisterRacer(transform, true, 0f);
+
+       UIManager.Instance.UpdateHealthBar(health, maxHealth);
     }
 
     void Update()
@@ -30,11 +38,32 @@ public class Player : MonoBehaviour
     //fixed update used as we are applying forces and torques and we need it to be in sync with physics engine
     void FixedUpdate()
     {
-        hoverboard.Move(moveInput, turnInput);
-        if (boostTriggered)
+        if (GameManager.Instance != null && GameManager.Instance.IsGameStarted)
         {
-            hoverboard.Boost();
-            boostTriggered = false;
+            hoverboard.Move(moveInput, turnInput);
+            if (boostTriggered)
+            {
+                hoverboard.Boost();
+                boostTriggered = false;
+            }
+        }
+    }
+
+    public void TakeDamage(int damage)
+    {
+        health -= damage;
+        if (health < 0) health = 0;
+        Debug.Log(health);
+
+        // Update health bar
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.UpdateHealthBar(health, maxHealth);
+        }
+
+        if (health <= 0)
+        {
+            Debug.Log("died");
         }
     }
 }

@@ -19,14 +19,19 @@ public class PositionTracker : MonoBehaviour
     public List<RacerData> racers = new();
     public SplineContainer spline;
     public GameObject checkpoint; 
-    private UIManager uiManager;
 
     void Awake()
     {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
-
-        uiManager = FindObjectOfType<UIManager>();
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        
+        else
+        {
+            Destroy(gameObject);
+        }
+        
     }
 
     void FixedUpdate()
@@ -99,7 +104,7 @@ public class PositionTracker : MonoBehaviour
             if (racer.isPlayer)
             {
                 int position = CalculatePosition(racer);
-                uiManager.UpdatePositionDisplay(position, racer.lapCount);
+                UIManager.Instance.UpdatePositionDisplay(position, racer.lapCount);
                 break;
             }
         }

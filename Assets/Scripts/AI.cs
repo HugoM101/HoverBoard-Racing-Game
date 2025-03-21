@@ -39,16 +39,21 @@ public class AI : MonoBehaviour
 
         PositionTracker.Instance.RegisterRacer(transform, false, startProgress); //register ai racers to positiontracker
 
-        //***setting start point and rotation for testing. same as the move code. to be removed later***
         progress = startProgress;
 
         Vector3 initialPosition = splineContainer.EvaluatePosition(progress);
-        transform.position = initialPosition;
-
+   
         Vector3 initialTangent = splineContainer.EvaluateTangent(progress);
         initialTangent = initialTangent.normalized;
 
         Vector3 initialUp = splineContainer.EvaluateUpVector(progress);
+
+        Vector3 right = Vector3.Cross(initialUp, initialTangent).normalized;
+        initialPosition += right * lateralOffset;
+
+        initialPosition += initialUp * hoverHeight;
+
+        transform.position = initialPosition;
 
         Quaternion initialRotation = Quaternion.LookRotation(initialTangent, initialUp);
         Quaternion offsetRotation = Quaternion.Euler(orientationOffset);
@@ -59,10 +64,18 @@ public class AI : MonoBehaviour
 
     void FixedUpdate() 
     {
-        RubberBanding();
-        Move();
-        Hover(); 
-        ObstacleAvoidance();
+        if (GameManager.Instance != null && GameManager.Instance.IsGameStarted)
+        {
+            RubberBanding();
+            Move();
+            Hover(); 
+            ObstacleAvoidance();
+        }
+
+        else
+        {
+            Hover(); 
+        }
     }
 
     void Move()

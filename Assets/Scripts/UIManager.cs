@@ -1,16 +1,35 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
-    public Text boostText;
+    public static UIManager Instance { get; private set; }
+    public TextMeshProUGUI boostText;
     private float cooldownRemaining;
     private bool canBoost = true;
     private bool isBoosting = false;
 
-    public Text positionText;
+    public TextMeshProUGUI positionText;
+
+    public TextMeshProUGUI countdownText;
+
+    public Slider healthBar;
+
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
 
     void Update()
     {
@@ -52,6 +71,39 @@ public class UIManager : MonoBehaviour
 
     public void UpdatePositionDisplay(int position, int lapCount)
     {
-        positionText.text = $"Position: {position} \n Lap: {lapCount}";
+        positionText.text = $"Position: {position} \n Lap: {lapCount} / 3";
+    }
+
+    public void UpdateCountdownDisplay(float timeRemaining)
+    {
+        if (countdownText != null)
+        {
+            countdownText.gameObject.SetActive(true);
+            if (timeRemaining > 0)
+            {
+                countdownText.text = timeRemaining.ToString("F0"); 
+            }
+
+            else
+            {
+                countdownText.text = "Race!";
+            }
+        }
+    }
+
+    public void HideCountdown()
+    {
+        if (countdownText != null)
+        {
+            countdownText.gameObject.SetActive(false);
+        }
+    }
+
+    public void UpdateHealthBar(int currentHealth, int maxHealth = 100)
+    {
+        if (healthBar != null)
+        {
+            healthBar.value = (float)currentHealth / maxHealth;
+        }
     }
 }
