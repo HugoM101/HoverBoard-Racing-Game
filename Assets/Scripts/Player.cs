@@ -11,10 +11,9 @@ public class Player : MonoBehaviour
     private int health = 100;
     private int maxHealth = 100;
 
-    public int Health
-    {
-        get { return health; }
-    }
+    public int Health { get { return health; } }
+
+    public float TurnInput { get { return turnInput; } }
    
     void Start()
     {
