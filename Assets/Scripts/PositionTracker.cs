@@ -12,7 +12,7 @@ public class PositionTracker : MonoBehaviour
     {
         public Transform racerTransform;
         public float progress;
-        public float lastLapProgress;
+        public float lastFrameProgress;
         public int lapCount;
         public bool isPlayer;
         public int currentPosition;
@@ -51,7 +51,7 @@ public class PositionTracker : MonoBehaviour
             lapCount = Mathf.FloorToInt(startProgress), //0.97 start prog would equal lap 0 
             isPlayer = isPlayer,
             currentPosition = 1,
-            lastLapProgress = startProgress % 1f
+            lastFrameProgress = startProgress % 1f
         });
     }
 
@@ -62,7 +62,7 @@ public class PositionTracker : MonoBehaviour
             float currentLapProgress = GetClosestProgress(racer.racerTransform.position);
             
             //calculating how much progress has been made since the last frame
-            float progressIncrement = currentLapProgress - racer.lastLapProgress;
+            float progressIncrement = currentLapProgress - racer.lastFrameProgress;
             
             if (progressIncrement < -0.5f)
             {
@@ -75,7 +75,7 @@ public class PositionTracker : MonoBehaviour
             }
 
             racer.progress += progressIncrement;
-            racer.lastLapProgress = currentLapProgress;
+            racer.lastFrameProgress = currentLapProgress;
 
             racer.lapCount = Mathf.FloorToInt(racer.progress);
         }
