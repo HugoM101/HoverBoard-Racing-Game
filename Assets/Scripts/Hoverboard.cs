@@ -9,7 +9,7 @@ public class Hoverboard : MonoBehaviour
     public float hoverForce;
     public float maxHoverDistance; //maximum distance able to detect surfaces
     private float startForce = 10.0f;
-    private bool hovering = true;
+    private bool hovering = false;
 
     private float savedHoverForce;
 
@@ -23,6 +23,8 @@ public class Hoverboard : MonoBehaviour
     public bool IsBoosting { get { return isBoosting; } }
     private bool canBoost = true;
 
+    private LayerMask obstacleLayerMask;
+
     public UIManager uiManager;
 
     private Rigidbody rb;
@@ -34,6 +36,8 @@ public class Hoverboard : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         savedHoverForce = hoverForce;
         StartCoroutine(IncreaseHoverForceOverTime());
+
+        obstacleLayerMask = ~LayerMask.GetMask("Obstacle");
 
         uiManager.UpdateBoostStatus(true, false);
     }
@@ -78,7 +82,7 @@ public class Hoverboard : MonoBehaviour
             RaycastHit hit;
             
             //casts a ray down to check if a surface is hit
-            if (Physics.Raycast(point.position, -transform.up, out hit, maxHoverDistance))
+            if (Physics.Raycast(point.position, -transform.up, out hit, maxHoverDistance, obstacleLayerMask))
             {
                 Debug.DrawRay(point.position, -transform.up * hit.distance, Color.green);
 
@@ -92,7 +96,8 @@ public class Hoverboard : MonoBehaviour
                 //apply the force upwards in the direction of surface normal
                 Vector3 hoverForceDirection = hit.normal * force;
                 rb.AddForceAtPosition(hoverForceDirection, point.position, ForceMode.Acceleration);
-            } 
+            }
+
             else
             {
                 //if there is no ground detected then apply downward force 
@@ -130,18 +135,24 @@ public class Hoverboard : MonoBehaviour
     //for the purpose of stable spawn and position resetting
     private IEnumerator IncreaseHoverForceOverTime()
     {
+        //wait for 0.5 to allow reset/spawn to settle
+        yield return new WaitForSeconds(0.5f);
+
+        //set to startForce and enable hovering
+        hoverForce = startForce;
+        hovering = true;
+
+        //start the lerp to normal hover force which is the set in inspector
         float elapsedTime = 0f;
-        float IncreaseDuration = 1.0f; //allow time for adjustement to happen
-   
-        while (elapsedTime <  IncreaseDuration)
+        float increaseDuration = 2.0f; //
+
+        while (elapsedTime < increaseDuration)
         {
             elapsedTime += Time.deltaTime;
-            hoverForce = startForce;
-            yield return null; 
+            float t = elapsedTime / increaseDuration;
+            hoverForce = Mathf.Lerp(startForce, savedHoverForce, t);
+            yield return null;
         }
-
-        hoverForce = savedHoverForce;
-        hovering = true;
     }
 
     public void ResetHoverboard(Vector3 position, Quaternion rotation)
@@ -155,6 +166,6 @@ public class Hoverboard : MonoBehaviour
         rb.velocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
 
-        StartCoroutine(IncreaseHoverForceOverTime()); 
+        StartCoroutine(IncreaseHoverForceOverTime());
     }
 }

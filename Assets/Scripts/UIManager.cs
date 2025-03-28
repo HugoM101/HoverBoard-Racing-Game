@@ -18,6 +18,15 @@ public class UIManager : MonoBehaviour
 
     public Slider healthBar;
 
+    public GameObject finishScreenPanel;
+    private bool finishScreenShown = false;
+    public TextMeshProUGUI finishText;
+
+    public GameObject pauseMenuPanel;
+
+    public GameObject deathPanel;
+
+
     void Awake()
     {
         if (Instance == null)
@@ -29,6 +38,13 @@ public class UIManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        finishScreenPanel.SetActive(false);
+       
+        pauseMenuPanel.SetActive(false);
+
+        deathPanel.SetActive(false);
+        
     }
 
     void Update()
@@ -86,7 +102,7 @@ public class UIManager : MonoBehaviour
 
             else
             {
-                countdownText.text = "Race!";
+                countdownText.text = "Go!";
             }
         }
     }
@@ -105,5 +121,63 @@ public class UIManager : MonoBehaviour
         {
             healthBar.value = (float)currentHealth / maxHealth;
         }
+    }
+
+    public void ShowFinishScreen(int finalPosition)
+    {
+        if (finishScreenPanel != null && !finishScreenShown)
+        {
+            finishScreenShown = true;
+            finishScreenPanel.SetActive(true);
+            Time.timeScale = 0f; 
+
+            if (finishText != null)
+            {
+                string suffix;
+                switch (finalPosition)
+                {
+                    case 1:
+                        suffix = "st";
+                        break;
+
+                    case 2:
+                        suffix = "nd";
+                        break;
+
+                    case 3:
+                        suffix = "rd";
+                        break;
+
+                    default:
+                        suffix = "th";
+                        break;
+                }
+                
+                if (finalPosition == 1)
+                {
+                    finishText.text = $"Congratulations! You won and finished {finalPosition}{suffix}!";
+                }
+
+                else
+                {
+                    finishText.text = $"Race complete. You placed {finalPosition}{suffix}";
+                }
+            }
+        }
+    }
+
+    public void ShowPauseMenu()
+    {
+        pauseMenuPanel.SetActive(true);
+    }
+
+    public void HidePauseMenu()
+    {
+        pauseMenuPanel.SetActive(false);
+    }
+
+    public void ShowDeathScreen()
+    {
+        deathPanel.SetActive(true);
     }
 }

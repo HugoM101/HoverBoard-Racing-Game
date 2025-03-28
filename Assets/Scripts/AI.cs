@@ -25,7 +25,6 @@ public class AI : MonoBehaviour
     public LayerMask obstacleLayer; 
 
     
-    public Transform player;
     public float minSpeedModifier; 
     public float maxSpeedModifier; 
     public float rubberBandStrength; 
@@ -146,17 +145,17 @@ public class AI : MonoBehaviour
                                                                                     /*forward avoidance distance 
                                                                                     shorter to allow the angled ones to 
                                                                                     have more time to detect obstacles*/
-        bool obstacleAhead = Physics.Raycast(transform.position, forward, out hitFront, obstacleAvoidanceDistance / 2f, obstacleLayer);
+        bool obstacleAhead = Physics.Raycast(transform.position, forward, out hitFront, obstacleAvoidanceDistance, obstacleLayer);
         bool obstacleLeft = Physics.Raycast(transform.position, left, out hitLeft, obstacleAvoidanceDistance, obstacleLayer);
         bool obstacleRight = Physics.Raycast(transform.position, right, out hitRight, obstacleAvoidanceDistance, obstacleLayer);
-        bool obstacleLeft45 = Physics.Raycast(transform.position, left45, out hitLeft45, obstacleAvoidanceDistance, obstacleLayer);
-        bool obstacleRight45 = Physics.Raycast(transform.position, right45, out hitRight45, obstacleAvoidanceDistance, obstacleLayer);
+        bool obstacleLeft45 = Physics.Raycast(transform.position, left45, out hitLeft45, obstacleAvoidanceDistance *2, obstacleLayer);
+        bool obstacleRight45 = Physics.Raycast(transform.position, right45, out hitRight45, obstacleAvoidanceDistance*2, obstacleLayer);
 
-        Debug.DrawRay(transform.position, forward * obstacleAvoidanceDistance / 2f, Color.cyan);
+        Debug.DrawRay(transform.position, forward * obstacleAvoidanceDistance, Color.cyan);
         Debug.DrawRay(transform.position, left * obstacleAvoidanceDistance, Color.blue);
         Debug.DrawRay(transform.position, right * obstacleAvoidanceDistance, Color.red);
-        Debug.DrawRay(transform.position, left45 * obstacleAvoidanceDistance, Color.magenta);
-        Debug.DrawRay(transform.position, right45 * obstacleAvoidanceDistance, Color.yellow);
+        Debug.DrawRay(transform.position, left45 * obstacleAvoidanceDistance*2, Color.magenta);
+        Debug.DrawRay(transform.position, right45 * obstacleAvoidanceDistance*2, Color.yellow);
 
         if (obstacleAhead)
         {
@@ -191,19 +190,26 @@ public class AI : MonoBehaviour
 
     void RubberBanding()
     {
-        //get players approx progress along the spline
+        //get player + ai approx progress along the spline
         float playerProgress = 0f;
+        float aiProgress = 0f;
+        
         foreach (var racer in PositionTracker.Instance.racers)
         {
             if (racer.isPlayer)
             {
                 playerProgress = racer.progress;
-                break;
+                
+            }
+            
+            if (racer.racerTransform == transform)
+            {
+                aiProgress = racer.progress;
             }
         }
 
         //calculate the distance between ai and player
-        float progressDifference = progress - playerProgress;
+        float progressDifference = aiProgress - playerProgress;
 
         float speedModifier = 1f;
 

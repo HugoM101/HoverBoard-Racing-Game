@@ -12,13 +12,14 @@ public class PositionTracker : MonoBehaviour
     {
         public Transform racerTransform;
         public float progress;
-        public int lapCount; 
+        public float lastLapProgress;
+        public int lapCount;
         public bool isPlayer;
+        public int currentPosition;
     }
 
     public List<RacerData> racers = new();
     public SplineContainer spline;
-    public GameObject checkpoint; 
 
     void Awake()
     {
@@ -44,11 +45,13 @@ public class PositionTracker : MonoBehaviour
     public void RegisterRacer(Transform racer, bool isPlayer, float startProgress)
     {
         racers.Add(new RacerData 
-        { 
+        {
             racerTransform = racer,
             progress = startProgress,
-            lapCount = 0,
-            isPlayer = isPlayer
+            lapCount = Mathf.FloorToInt(startProgress), //0.97 start prog would equal lap 0 
+            isPlayer = isPlayer,
+            currentPosition = 1,
+            lastLapProgress = startProgress % 1f
         });
     }
 
@@ -56,22 +59,28 @@ public class PositionTracker : MonoBehaviour
     {
         foreach (RacerData racer in racers)
         {
-            racer.progress = GetClosestProgress(racer.racerTransform.position);
+            float currentLapProgress = GetClosestProgress(racer.racerTransform.position);
+            
+            //calculating how much progress has been made since the last frame
+            float progressIncrement = currentLapProgress - racer.lastLapProgress;
+            
+            if (progressIncrement < -0.5f)
+            {
+                progressIncrement += 1f;
+            }
+
+            else if (progressIncrement > 0.5f) //this is for if the racer is reversing to stop "cheating"
+            {
+                progressIncrement -= 1f;
+            }
+
+            racer.progress += progressIncrement;
+            racer.lastLapProgress = currentLapProgress;
+
+            racer.lapCount = Mathf.FloorToInt(racer.progress);
         }
     }
 
-    //to be used by the checkpoint script attached to the checkpoint object
-    public void OnCheckpointTrigger(Collider other)
-    {
-        foreach (RacerData racer in racers)
-        {
-            if (other.transform == racer.racerTransform)
-            {
-                racer.lapCount++;
-                break;
-            }
-        }
-    }
 
     int CalculatePosition(RacerData racerToCheck)
     {
@@ -81,18 +90,13 @@ public class PositionTracker : MonoBehaviour
             if (racer != racerToCheck)
             {
                 //if another racer has more laps then they are ahead so increment the position
-                if (racer.lapCount > racerToCheck.lapCount)
-                {
-                    position++;
-                } 
-
-                //if laps are equal then check progress along spline
-                else if (racer.lapCount == racerToCheck.lapCount && racer.progress > racerToCheck.progress)
+                if (racer.progress > racerToCheck.progress)
                 {
                     position++;
                 } 
             }
         }
+
         return position;
     }
 
@@ -101,14 +105,12 @@ public class PositionTracker : MonoBehaviour
       
         foreach (RacerData racer in racers)
         {
+            racer.currentPosition = CalculatePosition(racer);
             if (racer.isPlayer)
             {
-                int position = CalculatePosition(racer);
-                UIManager.Instance.UpdatePositionDisplay(position, racer.lapCount);
-                break;
+              UIManager.Instance.UpdatePositionDisplay(racer.currentPosition, racer.lapCount);
             }
         }
-        
     }
 
     float GetClosestProgress(Vector3 racerPosition)

@@ -17,7 +17,7 @@ public class Player : MonoBehaviour
    
     void Start()
     {
-       PositionTracker.Instance.RegisterRacer(transform, true, 0f);
+       PositionTracker.Instance.RegisterRacer(transform, true, 0.97f);
 
        UIManager.Instance.UpdateHealthBar(health, maxHealth);
     }
@@ -32,6 +32,8 @@ public class Player : MonoBehaviour
         {
             boostTriggered = true;
         }
+
+        checkDeath();
     }
 
     //fixed update used as we are applying forces and torques and we need it to be in sync with physics engine
@@ -51,18 +53,19 @@ public class Player : MonoBehaviour
     public void TakeDamage(int damage)
     {
         health -= damage;
-        if (health < 0) health = 0;
-        Debug.Log(health);
-
-        // Update health bar
-        if (UIManager.Instance != null)
+        if (health < 0)
         {
-            UIManager.Instance.UpdateHealthBar(health, maxHealth);
+            health = 0;
         }
 
-        if (health <= 0)
+        UIManager.Instance.UpdateHealthBar(health, maxHealth);
+    }
+
+    public void checkDeath()
+    {
+        if (health == 0)
         {
-            Debug.Log("died");
+            GameManager.Instance.OnPlayerDeath();
         }
     }
 }
