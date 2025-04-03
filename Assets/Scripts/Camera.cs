@@ -4,6 +4,7 @@ public class CameraEffects : MonoBehaviour
 {
     public Transform player; 
     public Vector3 offset; 
+    public Vector3 rotationOffset;
     public float trackingSpeed;
     public float rotationSpeed;
     public float normalFOV;
@@ -28,8 +29,7 @@ public class CameraEffects : MonoBehaviour
         Vector3 targetPosition = player.TransformPoint(offset); 
         transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, trackingSpeed);
 
-        //susing player rotation + same offset as hoverboard set in hoverboard script. to be modified soon
-        Quaternion targetRotation = player.rotation * Quaternion.Euler(0, 90, 0);
+        Quaternion targetRotation = player.rotation * Quaternion.Euler(rotationOffset);
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed);
 
         //adjusting fov based on if boosting
