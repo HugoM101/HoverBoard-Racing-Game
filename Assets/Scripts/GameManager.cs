@@ -88,6 +88,8 @@ public class GameManager : MonoBehaviour
                 if (racer.isPlayer && racer.lapCount >= lapsToFinish)
                 {
                     raceFinished = true;
+                    Cursor.visible = true;
+                    Cursor.lockState = CursorLockMode.None;
                     UIManager.Instance.ShowFinishScreen(racer.currentPosition);
                     break;
                 }
