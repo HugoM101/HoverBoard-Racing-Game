@@ -11,7 +11,7 @@ public class GameManager : MonoBehaviour
     public bool IsGameStarted { get { return gameStarted; } }
 
     private bool raceFinished = false;
-    private int lapsToFinish = 4; //4 as it needs to complete the 3rd total
+    private int lapsToFinish = 3; //3 as it needs to complete the 2nd lap in total
 
     private bool isPaused = false;
 

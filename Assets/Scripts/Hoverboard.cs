@@ -18,7 +18,7 @@ public class Hoverboard : MonoBehaviour
 
     public float boostSpeed;
     public float boostDuration = 4f;
-    public float boostCooldown = 15f;
+    public float boostCooldown = 12f;
     private bool isBoosting = false;
     public bool IsBoosting { get { return isBoosting; } }
     private bool canBoost = true;

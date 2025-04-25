@@ -87,7 +87,7 @@ public class UIManager : MonoBehaviour
 
     public void UpdatePositionDisplay(int position, int lapCount)
     {
-        positionText.text = $"Position: {position} \n Lap: {lapCount} / 3";
+        positionText.text = $"Position: {position} \n Lap: {lapCount} / 2";
     }
 
     public void UpdateCountdownDisplay(float timeRemaining)
