@@ -3,8 +3,11 @@ using UnityEngine.UI;
 
 public class Settings : MonoBehaviour
 {
+    [Header("Sliders")]
     public Slider turningSpeedSlider;
     public Slider angularDragSlider;
+
+    [Header("Hoverboard script")]
     public Hoverboard hoverboard;
 
     void Start()

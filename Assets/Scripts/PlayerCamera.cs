@@ -1,16 +1,21 @@
 using UnityEngine;
 
-public class CameraEffects : MonoBehaviour
+public class PlayerCamera : MonoBehaviour
 {
+    [Header("Offsets")] 
     public Transform player; 
     public Vector3 offset; 
     public Vector3 rotationOffset;
+
+    [Header("Speeds")] 
     public float trackingSpeed;
     public float rotationSpeed;
+    public float fovTransitionSpeed ; 
+
+    [Header("FOV")] 
     public float normalFOV;
     public float boostFOV;
-    public float fovChangeSpeed ; 
-
+   
     private Camera cam;
     private Hoverboard hoverboard;
     private Vector3 velocity; 
@@ -43,6 +48,6 @@ public class CameraEffects : MonoBehaviour
             targetFOV = normalFOV; 
         }
 
-        cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, targetFOV, Time.fixedDeltaTime * fovChangeSpeed);
+        cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, targetFOV, Time.fixedDeltaTime * fovTransitionSpeed);
     }
 }

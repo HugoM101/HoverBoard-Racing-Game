@@ -2,61 +2,82 @@ using UnityEngine;
 using UnityEngine.Splines;
 
 public class AI : MonoBehaviour
-{
-    public SplineContainer splineContainer;
-
+{   
+    [Header("Position, Movement and Rotation Settings")]
+    public float startProgress;
+    public float lateralOffset;
+    public Vector3 orientationOffset; 
     public float baseSpeed; 
     public float rotationSharpness; 
-    public Vector3 orientationOffset; 
 
+    [Header("Hovering Settings")]
     public Transform[] hoverPoints; 
     public float hoverHeight; 
     public float hoverForce; 
     public float maxHoverDistance; 
 
-    public float startProgress;
-
-    private float progress = 0f; 
-    private Rigidbody rb;
-
+    [Header("Obstacle Avoidance")]
     public float obstacleAvoidanceDistance;
     private Vector3 avoidanceOffset;
     public float avoidanceStrength;
-    public LayerMask obstacleLayer; 
+    public LayerMask obstacleLayer;
 
-    
+    [Header("Rubberbanding")] 
     public float minSpeedModifier; 
     public float maxSpeedModifier; 
     public float rubberBandStrength; 
-    private float adjustedSpeed;
 
-    public float lateralOffset;
+    [Header("Spline")] 
+    public SplineContainer splineContainer;
+    private Vector3 targetPosition;
+    private Vector3 up;
+    private Vector3 targetTangent;
+    private Vector3 right;
+    private Quaternion targetRotation;
+    private Quaternion offsetRotation;
+
+    private float progress = 0f; 
+    private Rigidbody rb;
+    private float adjustedSpeed;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
 
-        PositionTracker.Instance.RegisterRacer(transform, false, startProgress); //register ai racers to positiontracker
+        //registers this ai to the position tracker
+        PositionTracker.Instance.RegisterRacer(transform, false, startProgress); 
 
         progress = startProgress;
 
-        Vector3 initialPosition = splineContainer.EvaluatePosition(progress);
+        #region Start position + Rotation
+
+        /********set position*********
+        ******************************
+        */
+
+        targetPosition = splineContainer.EvaluatePosition(progress);
+
+        //get up
+        up = splineContainer.EvaluateUpVector(progress);
    
-        Vector3 initialTangent = splineContainer.EvaluateTangent(progress);
-        initialTangent = initialTangent.normalized;
+        //get tangent (direction of travel) + calculate right
+        targetTangent = splineContainer.EvaluateTangent(progress);
+        targetTangent = targetTangent.normalized;
+        right = Vector3.Cross(up, targetTangent).normalized;
 
-        Vector3 initialUp = splineContainer.EvaluateUpVector(progress);
+        targetPosition += right * lateralOffset; //to allow for the spacing out of each ai
+        targetPosition += up * hoverHeight;
 
-        Vector3 right = Vector3.Cross(initialUp, initialTangent).normalized;
-        initialPosition += right * lateralOffset;
+        //set position
+        transform.position = targetPosition;
 
-        initialPosition += initialUp * hoverHeight;
-
-        transform.position = initialPosition;
-
-        Quaternion initialRotation = Quaternion.LookRotation(initialTangent, initialUp);
-        Quaternion offsetRotation = Quaternion.Euler(orientationOffset);
-        transform.rotation = initialRotation * offsetRotation;
+        /*********set rot***********
+        ****************************
+        */
+        targetRotation = Quaternion.LookRotation(targetTangent, up);
+        offsetRotation = Quaternion.Euler(orientationOffset);
+        transform.rotation = targetRotation * offsetRotation;
+        #endregion
 
         adjustedSpeed = baseSpeed;
     }
@@ -77,38 +98,54 @@ public class AI : MonoBehaviour
         }
     }
 
+    #region Movement
     void Move()
     {
         //move along the spline
         progress += adjustedSpeed * Time.deltaTime / splineContainer.CalculateLength();
         progress = Mathf.Repeat(progress, 1f);
 
-        //*****set pos******
-        Vector3 targetPosition = splineContainer.EvaluatePosition(progress);
-        Vector3 up = splineContainer.EvaluateUpVector(progress);
 
-        //get tangent (direction of travel)
-        Vector3 targetTangent = splineContainer.EvaluateTangent(progress);
+        //Similar to the start function code
+
+        /********set position*********
+        ******************************
+        */
+
+        targetPosition = splineContainer.EvaluatePosition(progress);
+
+        //get up
+        up = splineContainer.EvaluateUpVector(progress);
+
+        //get tangent (direction of travel) + calculate right
+        targetTangent = splineContainer.EvaluateTangent(progress);
         targetTangent = targetTangent.normalized;
-        Vector3 right = Vector3.Cross(up, targetTangent).normalized;
+        right = Vector3.Cross(up, targetTangent).normalized;
+
         targetPosition += right * lateralOffset;//to allow for the spacing out of each ai
         targetPosition += avoidanceOffset; //to apply offset for avoiding obstacles
+        
+        //lerp to target pos
         transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * adjustedSpeed);
    
-        //*****set rot******
+        /*********set rot***********
+        ****************************
+        */
         /*creates a rotation so that the ai's forward direction lines up with the splines tangent 
         and the up direction aligns with splines up vector*/
-        Quaternion targetRotation = Quaternion.LookRotation(targetTangent, up);
+        targetRotation = Quaternion.LookRotation(targetTangent, up);
         
         //apply offset set to change direction board is facing
-        Quaternion offsetRotation = Quaternion.Euler(orientationOffset);
+        offsetRotation = Quaternion.Euler(orientationOffset);
         targetRotation = targetRotation * offsetRotation;
 
         //smoothly rotate the ai
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * rotationSharpness); //more sharpness = quicker visual turning
     }
+    #endregion
 
-    //same physics as player hoverboard script
+    #region Hovering
+    //same physics as hoverboard script
     void Hover()
     {
         foreach (Transform point in hoverPoints)
@@ -126,25 +163,28 @@ public class AI : MonoBehaviour
             }
             else
             {
-                rb.AddForce(Vector3.down * hoverForce, ForceMode.Acceleration);
+                rb.AddForce(Vector3.down * 4.0f, ForceMode.Acceleration);
             }
         }
     }
+    #endregion
 
+    #region AI Features
     private void ObstacleAvoidance()
     {
         RaycastHit hitFront, hitLeft, hitRight, hitLeft45, hitRight45;
 
-        //the axis of hoverboard asset model was conflictiing with unity
-        Vector3 forward = -transform.right;             //negative X
-        Vector3 left = -transform.forward;              //negative Z
-        Vector3 right = transform.forward;              //positive Z
-        Vector3 left45 = (forward + left).normalized;   //45 degree left
+        /*the axis of hoverboard asset model was conflicting with unity
+         so i trial and errored to reassign vectors
+        */
+        Vector3 forward = -transform.right; //negative X
+        Vector3 left = -transform.forward; //negative Z
+        Vector3 right = transform.forward; //positive Z
+        Vector3 left45 = (forward + left).normalized; //45 degree left
         Vector3 right45 = (forward + right).normalized; //45 degree right
 
-                                                                                    /*forward avoidance distance 
-                                                                                    shorter to allow the angled ones to 
-                                                                                    have more time to detect obstacles*/
+                                                                                    /*angled 45 degree rays are longer to 
+                                                                                    allow more time to detect obstacles at angles*/
         bool obstacleAhead = Physics.Raycast(transform.position, forward, out hitFront, obstacleAvoidanceDistance, obstacleLayer);
         bool obstacleLeft = Physics.Raycast(transform.position, left, out hitLeft, obstacleAvoidanceDistance, obstacleLayer);
         bool obstacleRight = Physics.Raycast(transform.position, right, out hitRight, obstacleAvoidanceDistance, obstacleLayer);
@@ -225,4 +265,5 @@ public class AI : MonoBehaviour
 
         adjustedSpeed = baseSpeed * speedModifier;
     }
+    #endregion
 }

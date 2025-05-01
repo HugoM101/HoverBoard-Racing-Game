@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 public class PositionTracker : MonoBehaviour
 {
-    public static PositionTracker Instance { get; private set; }
+    public static PositionTracker Instance { get; private set; } //singleton
 
     [System.Serializable]
     public class RacerData
@@ -69,7 +69,7 @@ public class PositionTracker : MonoBehaviour
                 progressIncrement += 1f;
             }
 
-            else if (progressIncrement > 0.5f) //this is for if the racer is reversing to stop "cheating"
+            else if (progressIncrement > 0.5f) //this is for if the racer is reversing to stop "cheating" and to keep consistency
             {
                 progressIncrement -= 1f;
             }
@@ -116,8 +116,9 @@ public class PositionTracker : MonoBehaviour
     float GetClosestProgress(Vector3 racerPosition)
     {
         float closestProgress = 0f;
-        float currentClosestDistance = 999f; //starting point
-        int pointsSampledAlongSpline = 1000;
+        float currentClosestDistance = float.MaxValue; //starting point needs to be large so the if statement always runs at the loop start
+        int pointsSampledAlongSpline = 1000; /*1000 gave me a good balance between it not being accurate enough
+                                                and it being too accurate which looks unnatural */ 
 
         //loop through each point 
         //from 0 up to the total points

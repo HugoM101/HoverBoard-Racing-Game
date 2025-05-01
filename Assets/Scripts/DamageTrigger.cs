@@ -3,13 +3,15 @@ using UnityEngine;
 public class DamageTrigger : MonoBehaviour
 {
     public Player player; 
-    private float damageCooldown = 1.0f; //time between damage
-    private float cooldownTimer = 0f;
+    private float damageCooldown; //time between damage
+    private float cooldownTimer;
+
     void Start()
     {
-
+        cooldownTimer = 0f;
+        damageCooldown = 1.0f;
     }
-    
+
     void Update()
     {
         if (cooldownTimer > 0f)

@@ -1,25 +1,26 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Player : MonoBehaviour
 {
     public Hoverboard hoverboard;
-    float moveInput;
-    float turnInput;
-    bool boostTriggered = false;
-    private int health = 100;
-    private int maxHealth = 100;
 
-    public int Health { get { return health; } }
+    [Header("Inputs")]
+    private float moveInput;
+    private float turnInput;
+    public float TurnInput { get { return turnInput; } } //needed by the visual hoverboard script
 
-    public float TurnInput { get { return turnInput; } }
-   
+    [Header("Health")]
+    private int health;
+    private int maxHealth;
+    private bool boostTriggered;
+
     void Start()
     {
-       PositionTracker.Instance.RegisterRacer(transform, true, 0.97f);
-
-       UIManager.Instance.UpdateHealthBar(health, maxHealth);
+        maxHealth = 100;
+        health = 100;
+        PositionTracker.Instance.RegisterRacer(transform, true, 0.97f);
+        UIManager.Instance.UpdateHealthBar(health, maxHealth);
+        boostTriggered = false;
     }
 
     void Update()
@@ -33,10 +34,11 @@ public class Player : MonoBehaviour
             boostTriggered = true;
         }
 
-        checkDeath();
+        CheckDeath();
     }
 
     //fixed update used as we are applying forces and torques and we need it to be in sync with physics engine
+    //causing stutters and inconsistencies in normal update
     void FixedUpdate()
     {
         if (GameManager.Instance != null && GameManager.Instance.IsGameStarted)
@@ -61,7 +63,7 @@ public class Player : MonoBehaviour
         UIManager.Instance.UpdateHealthBar(health, maxHealth);
     }
 
-    public void checkDeath()
+    public void CheckDeath()
     {
         if (health == 0)
         {

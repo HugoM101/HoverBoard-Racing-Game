@@ -6,26 +6,28 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
-    public static UIManager Instance { get; private set; }
+    public static UIManager Instance { get; private set; } //singleton
+
+    [Header("Text")]
     public TextMeshProUGUI boostText;
-    private float cooldownRemaining;
+    public TextMeshProUGUI positionText;
+    public TextMeshProUGUI countdownText;
+    public TextMeshProUGUI finishText;
+
+    [Header("Sliders")]
+    public Slider healthBar;
+
+    [Header("Panels")]
+    public GameObject pauseMenuPanel;
+    public GameObject deathPanel;
+    public GameObject finishScreenPanel;
+
+    //flags
+    private bool finishScreenShown = false;
     private bool canBoost = true;
     private bool isBoosting = false;
 
-    public TextMeshProUGUI positionText;
-
-    public TextMeshProUGUI countdownText;
-
-    public Slider healthBar;
-
-    public GameObject finishScreenPanel;
-    private bool finishScreenShown = false;
-    public TextMeshProUGUI finishText;
-
-    public GameObject pauseMenuPanel;
-
-    public GameObject deathPanel;
-
+    private float cooldownRemaining;
 
     void Awake()
     {
@@ -39,12 +41,10 @@ public class UIManager : MonoBehaviour
             Destroy(gameObject);
         }
 
+        //disabling panels on awake so they dont show
         finishScreenPanel.SetActive(false);
-       
         pauseMenuPanel.SetActive(false);
-
         deathPanel.SetActive(false);
-        
     }
 
     void Update()
@@ -52,6 +52,8 @@ public class UIManager : MonoBehaviour
         UpdateBoostDisplay();
     }
 
+    #region Boost
+    //updating the boost status and colour depending on the current state
     void UpdateBoostDisplay()
     {
         if (isBoosting)
@@ -74,6 +76,7 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    //to be mainly used by the hoverboard script 
     public void UpdateBoostStatus(bool boostAvailable, bool boosting, float cooldown = 0f)
     {
         canBoost = boostAvailable;
@@ -84,12 +87,16 @@ public class UIManager : MonoBehaviour
             cooldownRemaining = cooldown;
         }
     }
+    #endregion
 
+    #region Position
     public void UpdatePositionDisplay(int position, int lapCount)
     {
-        positionText.text = $"Position: {position} \n Lap: {lapCount} / 2";
+        positionText.text = $"Position: {position} \n Lap: {lapCount} / 2"; //now 2 afer feedback adaptation
     }
-
+    #endregion
+    
+    #region Countdown
     public void UpdateCountdownDisplay(float timeRemaining)
     {
         if (countdownText != null)
@@ -114,7 +121,9 @@ public class UIManager : MonoBehaviour
             countdownText.gameObject.SetActive(false);
         }
     }
+    #endregion
 
+    #region HealthBar
     public void UpdateHealthBar(int currentHealth, int maxHealth = 100)
     {
         if (healthBar != null)
@@ -122,7 +131,9 @@ public class UIManager : MonoBehaviour
             healthBar.value = (float)currentHealth / maxHealth;
         }
     }
+    #endregion
 
+    #region Panels and Screens
     public void ShowFinishScreen(int finalPosition)
     {
         if (finishScreenPanel != null && !finishScreenShown)
@@ -180,4 +191,5 @@ public class UIManager : MonoBehaviour
     {
         deathPanel.SetActive(true);
     }
+    #endregion
 }
