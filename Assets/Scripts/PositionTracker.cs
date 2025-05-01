@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.Splines;
 using System.Collections.Generic;
 
@@ -32,7 +31,6 @@ public class PositionTracker : MonoBehaviour
         {
             Destroy(gameObject);
         }
-        
     }
 
     void FixedUpdate()

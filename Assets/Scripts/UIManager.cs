@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,6 +9,7 @@ public class UIManager : MonoBehaviour
     [Header("Text")]
     public TextMeshProUGUI boostText;
     public TextMeshProUGUI positionText;
+    public TextMeshProUGUI healthText;
     public TextMeshProUGUI countdownText;
     public TextMeshProUGUI finishText;
 
@@ -129,6 +128,7 @@ public class UIManager : MonoBehaviour
         if (healthBar != null)
         {
             healthBar.value = (float)currentHealth / maxHealth;
+            healthText.text = $"Health: {currentHealth:F0}";
         }
     }
     #endregion

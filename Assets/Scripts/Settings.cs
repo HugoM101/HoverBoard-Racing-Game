@@ -7,7 +7,7 @@ public class Settings : MonoBehaviour
     public Slider turningSpeedSlider;
     public Slider angularDragSlider;
 
-    [Header("Hoverboard script")]
+    [Header("References")]
     public Hoverboard hoverboard;
 
     void Start()

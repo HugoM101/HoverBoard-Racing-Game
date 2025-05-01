@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Hoverboard : MonoBehaviour
@@ -25,8 +24,10 @@ public class Hoverboard : MonoBehaviour
     public bool IsBoosting { get { return isBoosting; } }
     private bool canBoost;
 
-    private LayerMask obstacleLayer;
+    [Header("References")] 
     public UIManager uiManager;
+
+    private LayerMask obstacleLayer;
     private Rigidbody rb;
 
     void Start()
