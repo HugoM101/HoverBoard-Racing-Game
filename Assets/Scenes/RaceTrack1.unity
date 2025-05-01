@@ -8681,9 +8681,9 @@ MonoBehaviour:
   rotationOffset: {x: -5.87, y: 90, z: 0}
   trackingSpeed: 0.06
   rotationSpeed: 0.2
-  fovTransitionSpeed: 0.16
+  fovTransitionSpeed: 1
   normalFOV: 78.3
-  boostFOV: 112.4
+  boostFOV: 117
 --- !u!1001 &905074474
 PrefabInstance:
   m_ObjectHideFlags: 0
